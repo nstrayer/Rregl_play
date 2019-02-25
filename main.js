@@ -1,8 +1,9 @@
-// !preview r2d3 data=c(0.3, 0.6, 0.8, 0.95, 0.40, 0.20), dependencies = c('libs/regl.min.js', "helpers.js"), container = 'canvas'
+// !preview r2d3 data=beta_data, dependencies = c('libs/regl.min.js', "helpers.js"), container = 'canvas'
 //
 // r2d3: https://rstudio.github.io/r2d3
 //
-const numPoints = 10000;
+//const numPoints = 10000;
+const numPoints = data.length;
 const pointWidth = 4;
 const pointMargin = 1;
 // duration of the animation ignoring delays
@@ -13,7 +14,8 @@ const delayByIndex = 500 / numPoints;
 const maxDuration = duration + delayByIndex * numPoints;
 
 // create initial set of points
-const points = createPoints(numPoints, pointWidth, width, height);
+//const points = createPoints(numPoints, pointWidth, width, height);
+const points = initializePoints(data, width, height);
 
 function main(err, regl) {
 
@@ -27,14 +29,6 @@ function main(err, regl) {
   const layouts = [toPhyllotaxis, toSpiral, toRandom];
   let currentLayout = 0;
   let startTime = null; // in seconds
-
-  // wrap d3 color scales so they produce vec3s with values 0-1
-  function wrapColorScale(scale) {
-    return t => {
-      const rgb = d3.rgb(scale(1 - t));
-      return [rgb.r / 255, rgb.g / 255, rgb.b / 255];
-    };
-  }
 
   // the order of color scales to loop through
   const colorScales = [
@@ -211,10 +205,6 @@ function main(err, regl) {
       }
     });
   }
-
-
-
-
   animate(layouts[currentLayout], points);
 }
 

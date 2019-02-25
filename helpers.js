@@ -132,6 +132,45 @@ function spiralLayout(points, pointWidth, width, height) {
   return points;
 }
 
+function colorToVec3(color){
+  const rgb = d3.rgb(color);
+  return [rgb.r / 255, rgb.g / 255, rgb.b / 255];
+}
+
+// wrap d3 color scales so they produce vec3s with values 0-1
+function wrapColorScale(scale) {
+  return t => {
+    const rgb = d3.rgb(scale(1 - t));
+    return [rgb.r / 255, rgb.g / 255, rgb.b / 255];
+  };
+}
+
+// Simple function to get the unique values in an array
+function unique(data, key){ 
+  return d3.set(data.map(d => d[key])).values();
+};
+
+function initializePoints(data, width, height) {
+  
+  const unique_classes = unique(data, 'class');
+  const color_index = unique_classes.reduce((class_obj, cur_class, i) => {
+    class_obj[cur_class] = i;
+    return class_obj;
+  }, {});
+  
+  const colorScale = d3.scaleSequential(d3.interpolateViridis)
+    .domain([0,unique_classes.length]);
+
+  data.forEach((d,i) => {
+    d.x = d.x*width;
+    d.y = d.y*height;
+    d.id = i;
+    d.color = colorScale(color_index[d['class']]);
+    d.colorEnd =  colorToVec3(d.color);
+  })
+
+  return data
+}
 
 /**
  * Generate an object array of `numPoints` length with unique IDs
